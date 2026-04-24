@@ -1,0 +1,518 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --gold:#c9a84c;--gold-l:#e8d5a0;--gold-d:rgba(201,168,76,.3);
+  --navy:#07101f;--navy-m:#0d1a32;--navy-l:#162240;
+  --soft:#8a9dc0;--white:#f0eeea;
+}
+body{font-family:'Cormorant Garamond',serif;background:var(--navy);}
+.stage{
+  min-height:540px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:36px 14px;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 35%,#0e1d3c 0%,#050b16 100%);
+}
+.stars{position:absolute;inset:0;pointer-events:none;z-index:0;}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d) ease-in-out infinite var(--delay);}
+@keyframes twinkle{0%,100%{opacity:.07;}50%{opacity:.8;}}
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;position:relative;z-index:2;}
+.screen.active{display:flex;}
+.steps{display:flex;gap:9px;margin-top:20px;}
+.dot{width:8px;height:8px;border-radius:50%;background:transparent;border:1px solid var(--gold);transition:background .35s;}
+.dot.on{background:var(--gold);}
+
+/* ══════════════════════════
+   SCREEN 1 — REAL ENVELOPE
+══════════════════════════ */
+.env-scene{position:relative;width:min(400px,90vw);height:min(260px,58vw);cursor:pointer;}
+
+/* Body */
+.env-body{
+  position:absolute;inset:0;
+  background:linear-gradient(170deg,#1b2d52,#0e1c3a,#1b2d52);
+  border:1.5px solid var(--gold);
+  border-radius:2px;
+  box-shadow:0 0 50px rgba(201,168,76,.14),inset 0 0 60px rgba(201,168,76,.04);
+  overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.env-scene:hover .env-body{transform:translateY(-4px);box-shadow:0 8px 60px rgba(201,168,76,.22);}
+.env-scene:active .env-body{transform:scale(.97);}
+
+/* Inner thin border */
+.env-inner{position:absolute;inset:7px;border:1px solid rgba(201,168,76,.2);border-radius:1px;pointer-events:none;}
+
+/* Side triangles */
+.env-tri{position:absolute;width:0;height:0;}
+.env-tri.left {left:0;top:0;border-top:min(130px,29vw) solid transparent;border-bottom:min(130px,29vw) solid transparent;border-left:min(148px,33vw) solid rgba(10,22,48,.85);}
+.env-tri.right{right:0;top:0;border-top:min(130px,29vw) solid transparent;border-bottom:min(130px,29vw) solid transparent;border-right:min(148px,33vw) solid rgba(8,18,40,.85);}
+.env-tri.bottom{bottom:0;left:0;border-left:min(200px,45vw) solid transparent;border-right:min(200px,45vw) solid transparent;border-bottom:min(136px,30.5vw) solid rgba(7,14,32,.9);}
+
+/* FLAP */
+.env-flap-wrap{
+  position:absolute;top:0;left:0;right:0;
+  height:min(152px,34vw);
+  transform-origin:50% 0%;
+  transform-style:preserve-3d;
+  transition:transform .9s cubic-bezier(.4,0,.15,1);
+  z-index:10;
+  perspective:800px;
+}
+.env-flap-wrap.opened{transform:rotateX(-185deg);}
+.env-flap-front{
+  position:absolute;inset:0;
+  width:0;height:0;
+  border-left:min(200px,45vw) solid transparent;
+  border-right:min(200px,45vw) solid transparent;
+  border-top:min(152px,34vw) solid #1e3460;
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,.6));
+}
+.env-flap-back{
+  position:absolute;inset:0;
+  width:0;height:0;
+  border-left:min(200px,45vw) solid transparent;
+  border-right:min(200px,45vw) solid transparent;
+  border-top:min(152px,34vw) solid #162548;
+  transform:rotateX(180deg);
+  transform-origin:50% 0%;
+}
+
+/* flap gold crease line */
+.env-flap-line{
+  position:absolute;top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,.5),transparent);
+  z-index:11;
+}
+
+/* Wax seal */
+.wax{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:clamp(60px,15vw,74px);height:clamp(60px,15vw,74px);
+  background:radial-gradient(circle at 36% 34%,#223970,#0d1e45);
+  border-radius:50%;border:2.5px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  z-index:20;
+  box-shadow:0 0 0 5px rgba(201,168,76,.1),0 4px 24px rgba(0,0,0,.7);
+  transition:transform .45s,opacity .45s;
+}
+.wax.break{transform:translate(-50%,-50%) scale(0);opacity:0;}
+.wax-inner{text-align:center;}
+.wax-text{font-family:'Cinzel',serif;font-size:clamp(12px,3vw,16px);color:var(--gold);letter-spacing:2px;display:block;line-height:1.1;}
+.wax-rule{width:34px;height:1px;background:var(--gold);opacity:.4;margin:5px auto 0;}
+
+/* gold corner diamonds on envelope */
+.env-corner{position:absolute;width:28px;height:28px;}
+.env-corner.tl{top:4px;left:4px;}
+.env-corner.tr{top:4px;right:4px;transform:scaleX(-1);}
+.env-corner.bl{bottom:4px;left:4px;transform:scaleY(-1);}
+.env-corner.br{bottom:4px;right:4px;transform:scale(-1,-1);}
+
+.tap-hint{margin-top:18px;font-family:'Cinzel',serif;font-size:clamp(9px,2.3vw,11px);letter-spacing:4px;text-transform:uppercase;color:var(--gold);animation:glow 2s ease-in-out infinite;}
+@keyframes glow{0%,100%{opacity:.3;text-shadow:none;}50%{opacity:1;text-shadow:0 0 12px rgba(201,168,76,.5);}}
+
+/* ══════════════════════════
+   SHARED CARD
+══════════════════════════ */
+.card{
+  background:linear-gradient(160deg,#0e1d38,#08111e,#0e1d38);
+  border:1.5px solid var(--gold);border-radius:4px;
+  width:min(400px,92vw);text-align:center;position:relative;overflow:hidden;
+  box-shadow:0 0 70px rgba(201,168,76,.1),inset 0 0 80px rgba(201,168,76,.025);
+  animation:riseIn .75s cubic-bezier(.34,1.28,.64,1) both;
+}
+@keyframes riseIn{from{opacity:0;transform:translateY(50px);}to{opacity:1;transform:translateY(0);}}
+.card::before{content:'';position:absolute;inset:9px;border:1px solid rgba(201,168,76,.16);border-radius:2px;pointer-events:none;z-index:0;}
+.cbody{padding:clamp(24px,5vw,36px) clamp(20px,5vw,40px) clamp(20px,4vw,30px);position:relative;z-index:1;}
+
+.orn{position:absolute;opacity:.68;pointer-events:none;}
+.orn.tl{top:0;left:0;width:clamp(54px,13vw,74px);height:clamp(54px,13vw,74px);}
+.orn.tr{top:0;right:0;width:clamp(54px,13vw,74px);height:clamp(54px,13vw,74px);transform:scaleX(-1);}
+.orn.bl{bottom:0;left:0;width:clamp(48px,12vw,64px);height:clamp(48px,12vw,64px);transform:scaleY(-1);}
+.orn.br{bottom:0;right:0;width:clamp(48px,12vw,64px);height:clamp(48px,12vw,64px);transform:scale(-1,-1);}
+
+.divrow{display:flex;align-items:center;gap:7px;margin-bottom:clamp(12px,3vw,18px);}
+.dln{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.dgm{width:7px;height:7px;background:var(--gold);transform:rotate(45deg);flex-shrink:0;}
+.dgm-s{width:4px;height:4px;background:var(--gold);transform:rotate(45deg);flex-shrink:0;opacity:.5;}
+
+.lbl{font-family:'Cinzel',serif;font-size:clamp(7px,1.9vw,9px);letter-spacing:4px;text-transform:uppercase;color:var(--gold);opacity:.72;margin-bottom:clamp(10px,2.5vw,14px);}
+
+.n-bride,.n-groom{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(36px,9.5vw,54px);color:var(--gold-l);display:block;line-height:1.08;letter-spacing:clamp(2px,.8vw,4px);text-shadow:0 0 30px rgba(201,168,76,.28);}
+.n-weds{font-family:'Playfair Display',serif;font-weight:400;font-style:italic;font-size:clamp(22px,5.5vw,34px);color:var(--gold);display:block;line-height:1;margin:clamp(2px,1vw,5px) 0;}
+
+.tagline{font-family:'Cormorant Garamond',serif;font-size:clamp(12px,3vw,14px);font-style:italic;color:var(--soft);margin:clamp(8px,2vw,12px) 0 clamp(18px,4vw,26px);line-height:1.55;}
+.cta{display:inline-block;background:transparent;color:var(--gold);border:1px solid var(--gold);padding:clamp(9px,2vw,12px) clamp(22px,5vw,36px);font-family:'Cinzel',serif;font-size:clamp(8px,2vw,10px);letter-spacing:3px;text-transform:uppercase;border-radius:1px;cursor:pointer;transition:all .28s;}
+.cta:hover{background:var(--gold);color:var(--navy);}
+.cta:active{transform:scale(.96);}
+
+/* scratch */
+.sc-h{font-family:'Cinzel',serif;font-size:clamp(16px,4.5vw,21px);font-weight:600;color:var(--gold-l);letter-spacing:2px;margin-bottom:4px;}
+.sc-s{font-size:clamp(9px,2.2vw,11px);letter-spacing:3px;text-transform:uppercase;color:var(--soft);margin-bottom:clamp(12px,3vw,18px);}
+.sc-wrap{position:relative;border-radius:6px;overflow:hidden;cursor:crosshair;}
+canvas#sc{position:absolute;top:0;left:0;touch-action:none;display:block;}
+.datebox{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.35);border-radius:6px;padding:clamp(14px,3.5vw,20px) clamp(10px,3vw,14px);}
+.d-main{font-family:'Cinzel',serif;font-weight:600;font-size:clamp(16px,4.2vw,21px);color:var(--gold-l);display:block;line-height:1.3;letter-spacing:1px;}
+.d-time{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3vw,15px);color:var(--gold);margin-top:5px;display:block;}
+.d-venue{font-size:clamp(11px,2.5vw,13px);color:var(--soft);margin-top:8px;line-height:1.7;}
+.sc-prog{margin-top:9px;font-size:clamp(9px,2vw,10px);color:#4a5e7a;letter-spacing:2px;text-transform:uppercase;min-height:15px;}
+
+/* full invite */
+.fb{padding:clamp(22px,4.5vw,32px) clamp(18px,4.5vw,36px) 0;position:relative;z-index:1;}
+.fn .n-bride,.fn .n-groom{font-size:clamp(30px,8vw,46px);}
+.fn .n-weds{font-size:clamp(18px,4.5vw,28px);}
+.ev-box{background:rgba(201,168,76,.055);border:1px solid rgba(201,168,76,.26);border-radius:3px;padding:clamp(11px,2.5vw,15px) clamp(12px,3vw,16px);margin:clamp(10px,2.5vw,14px) 0;}
+.ev-tag{font-family:'Cinzel',serif;font-size:clamp(7px,1.7vw,9px);letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:7px;}
+.ev-date{font-family:'Cinzel',serif;font-size:clamp(16px,4.2vw,21px);font-weight:600;color:var(--gold-l);letter-spacing:1px;}
+.ev-time{font-family:'Cormorant Garamond',serif;font-size:clamp(12px,2.8vw,14px);color:var(--gold);margin-top:3px;}
+.v-name{font-family:'Cinzel',serif;font-size:clamp(13px,3.5vw,17px);font-weight:600;color:var(--gold-l);letter-spacing:1px;}
+.v-hall{font-family:'Cormorant Garamond',serif;font-size:clamp(12px,2.8vw,14px);color:var(--gold);margin:2px 0 4px;}
+.v-addr{font-size:clamp(10px,2.3vw,12px);color:var(--soft);line-height:1.75;margin-bottom:clamp(10px,2.5vw,14px);}
+.cd-row{display:flex;justify-content:center;gap:clamp(6px,2.5vw,14px);padding:clamp(10px,2.5vw,13px) 0;border-top:1px solid rgba(201,168,76,.16);}
+.cd-u{text-align:center;}
+.cd-n{font-family:'Cinzel',serif;font-size:clamp(19px,5vw,25px);font-weight:600;color:var(--gold);display:block;line-height:1;}
+.cd-l{font-size:clamp(7px,1.7vw,9px);letter-spacing:2px;text-transform:uppercase;color:#3a506e;}
+.cd-sep{font-size:clamp(16px,4vw,22px);color:rgba(201,168,76,.3);align-self:center;padding-bottom:12px;}
+
+/* RSVP — bold, not italic */
+.rsvp-bar{
+  background:linear-gradient(90deg,#060f22,#142038,#060f22);
+  border-top:1px solid rgba(201,168,76,.22);
+  margin:0 clamp(-18px,-4.5vw,-36px);
+  padding:clamp(12px,2.5vw,16px) 20px;text-align:center;
+}
+.rsvp-tag{font-family:'Cinzel',serif;font-size:clamp(7px,1.7vw,9px);letter-spacing:4px;text-transform:uppercase;color:rgba(201,168,76,.55);}
+.rsvp-num{font-family:'Cinzel',serif;font-size:clamp(14px,3.8vw,18px);font-weight:700;color:var(--gold-l);margin-top:4px;letter-spacing:1px;}
+
+/* BLESS button */
+.bless-wrap{margin:clamp(16px,3.5vw,22px) 0 clamp(4px,1vw,8px);}
+.bless-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,#c9a84c,#e8d5a0,#c9a84c);
+  color:#06101f;
+  border:none;
+  padding:clamp(11px,2.5vw,14px) clamp(28px,6vw,44px);
+  font-family:'Cinzel',serif;font-size:clamp(9px,2.3vw,12px);
+  letter-spacing:3px;text-transform:uppercase;font-weight:700;
+  border-radius:2px;cursor:pointer;
+  box-shadow:0 4px 24px rgba(201,168,76,.35);
+  transition:all .28s;
+  animation:blessPulse 2.5s ease-in-out infinite;
+}
+@keyframes blessPulse{0%,100%{box-shadow:0 4px 24px rgba(201,168,76,.3);}50%{box-shadow:0 4px 40px rgba(201,168,76,.65),0 0 0 4px rgba(201,168,76,.15);}}
+.bless-btn:hover{transform:scale(1.04);box-shadow:0 6px 36px rgba(201,168,76,.55);}
+.bless-btn:active{transform:scale(.97);}
+
+/* Rose petals */
+.petal{
+  position:fixed;pointer-events:none;z-index:9999;
+  font-size:var(--sz);
+  animation:petalFall var(--dur) linear var(--delay) forwards;
+  opacity:0;
+}
+@keyframes petalFall{
+  0%  {opacity:0;transform:translateY(-20px) rotate(var(--r0)) scale(.6);}
+  8%  {opacity:1;}
+  90% {opacity:.8;}
+  100%{opacity:0;transform:translateY(105vh) translateX(var(--dx)) rotate(var(--r1)) scale(1);}
+}
+
+/* particles */
+.ptcl{position:absolute;border-radius:50%;pointer-events:none;z-index:50;animation:flyout .9s ease-out forwards;}
+@keyframes flyout{from{opacity:1;transform:translate(0,0) scale(1);}to{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.12);}}
+</style>
+
+<div class="stage" id="stage">
+<div class="stars" id="stars"></div>
+
+<!-- ══ S1: ENVELOPE ══ -->
+<div class="screen active" id="s1">
+  <div class="env-scene" id="envScene" onclick="tapEnvelope()">
+    <div class="env-body" id="envBody">
+      <div class="env-inner"></div>
+
+      <!-- corner diamonds -->
+      <svg class="env-corner tl" viewBox="0 0 28 28" fill="none">
+        <path d="M2 26 L14 2 L26 26" stroke="#c9a84c" stroke-width=".8" fill="none" opacity=".5"/>
+        <rect x="12" y="0" width="4" height="4" fill="#c9a84c" transform="rotate(45 14 2)" opacity=".7"/>
+        <circle cx="2" cy="26" r="1.5" fill="#c9a84c" opacity=".4"/>
+        <circle cx="26" cy="26" r="1.5" fill="#c9a84c" opacity=".4"/>
+      </svg>
+      <svg class="env-corner tr" viewBox="0 0 28 28" fill="none">
+        <path d="M2 26 L14 2 L26 26" stroke="#c9a84c" stroke-width=".8" fill="none" opacity=".5"/>
+        <rect x="12" y="0" width="4" height="4" fill="#c9a84c" transform="rotate(45 14 2)" opacity=".7"/>
+        <circle cx="2" cy="26" r="1.5" fill="#c9a84c" opacity=".4"/>
+        <circle cx="26" cy="26" r="1.5" fill="#c9a84c" opacity=".4"/>
+      </svg>
+      <svg class="env-corner bl" viewBox="0 0 28 28" fill="none">
+        <path d="M2 26 L14 2 L26 26" stroke="#c9a84c" stroke-width=".8" fill="none" opacity=".5"/>
+        <rect x="12" y="0" width="4" height="4" fill="#c9a84c" transform="rotate(45 14 2)" opacity=".7"/>
+      </svg>
+      <svg class="env-corner br" viewBox="0 0 28 28" fill="none">
+        <path d="M2 26 L14 2 L26 26" stroke="#c9a84c" stroke-width=".8" fill="none" opacity=".5"/>
+        <rect x="12" y="0" width="4" height="4" fill="#c9a84c" transform="rotate(45 14 2)" opacity=".7"/>
+      </svg>
+
+      <div class="env-tri left"></div>
+      <div class="env-tri right"></div>
+      <div class="env-tri bottom"></div>
+    </div>
+
+    <!-- FLAP -->
+    <div class="env-flap-wrap" id="flap">
+      <div class="env-flap-front"></div>
+      <div class="env-flap-back"></div>
+    </div>
+    <div class="env-flap-line"></div>
+
+    <div class="wax" id="wax">
+      <div class="wax-inner">
+        <span class="wax-text">S &amp; B</span>
+        <div class="wax-rule"></div>
+      </div>
+    </div>
+  </div>
+  <p class="tap-hint">✦ Tap to Open ✦</p>
+  <div class="steps"><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
+
+<!-- ══ S2: NAMES ══ -->
+<div class="screen" id="s2">
+  <div class="card">
+    <svg class="orn tl" viewBox="0 0 74 74" fill="none"><path d="M4 70 Q14 38 50 4" stroke="#c9a84c" stroke-width="1.1" fill="none" opacity=".52"/><path d="M4 70 Q30 52 68 36" stroke="#c9a84c" stroke-width=".7" fill="none" opacity=".32"/><circle cx="48" cy="8" r="5.5" fill="none" stroke="#c9a84c" stroke-width=".9" opacity=".62"/><circle cx="48" cy="8" r="2.2" fill="#c9a84c" opacity=".62"/><path d="M48 2 L51 6 L48 5 L45 6Z" fill="#c9a84c" opacity=".52"/><path d="M54 12 L50 11 L51 8Z" fill="#c9a84c" opacity=".42"/><path d="M42 12 L46 11 L45 8Z" fill="#c9a84c" opacity=".42"/><circle cx="64" cy="38" r="4.5" fill="none" stroke="#c9a84c" stroke-width=".9" opacity=".52"/><circle cx="64" cy="38" r="1.8" fill="#c9a84c" opacity=".52"/><circle cx="22" cy="29" r="1.6" fill="#c9a84c" opacity=".32"/><circle cx="36" cy="20" r="1.3" fill="#c9a84c" opacity=".32"/><path d="M18 46 Q23 41 30 44" stroke="#c9a84c" stroke-width=".8" fill="none" opacity=".3"/><path d="M34 16 Q39 12 46 15" stroke="#c9a84c" stroke-width=".8" fill="none" opacity=".3"/></svg>
+    <svg class="orn tr" viewBox="0 0 74 74" fill="none"><path d="M4 70 Q14 38 50 4" stroke="#c9a84c" stroke-width="1.1" fill="none" opacity=".52"/><path d="M4 70 Q30 52 68 36" stroke="#c9a84c" stroke-width=".7" fill="none" opacity=".32"/><circle cx="48" cy="8" r="5.5" fill="none" stroke="#c9a84c" stroke-width=".9" opacity=".62"/><circle cx="48" cy="8" r="2.2" fill="#c9a84c" opacity=".62"/><path d="M48 2 L51 6 L48 5 L45 6Z" fill="#c9a84c" opacity=".52"/><circle cx="64" cy="38" r="4.5" fill="none" stroke="#c9a84c" stroke-width=".9" opacity=".52"/><circle cx="64" cy="38" r="1.8" fill="#c9a84c" opacity=".52"/><circle cx="36" cy="20" r="1.3" fill="#c9a84c" opacity=".32"/></svg>
+    <svg class="orn bl" viewBox="0 0 64 64" fill="none"><path d="M4 60 Q12 33 42 4" stroke="#c9a84c" stroke-width="1" fill="none" opacity=".42"/><circle cx="40" cy="8" r="4.5" fill="none" stroke="#c9a84c" stroke-width=".8" opacity=".52"/><circle cx="40" cy="8" r="1.8" fill="#c9a84c" opacity=".52"/><circle cx="20" cy="27" r="1.3" fill="#c9a84c" opacity=".28"/></svg>
+    <svg class="orn br" viewBox="0 0 64 64" fill="none"><path d="M4 60 Q12 33 42 4" stroke="#c9a84c" stroke-width="1" fill="none" opacity=".42"/><circle cx="40" cy="8" r="4.5" fill="none" stroke="#c9a84c" stroke-width=".8" opacity=".52"/><circle cx="40" cy="8" r="1.8" fill="#c9a84c" opacity=".52"/></svg>
+    <div class="cbody">
+      <div class="divrow"><div class="dln"></div><div class="dgm-s"></div><div class="dgm"></div><div class="dgm-s"></div><div class="dln"></div></div>
+      <p class="lbl">A Royal Celebration</p>
+      <span class="n-bride">Sheetal</span>
+      <span class="n-weds">weds</span>
+      <span class="n-groom">Bharat</span>
+      <p class="tagline">Two souls, one destiny —<br>join us as we begin forever</p>
+      <div class="divrow" style="margin-bottom:22px;"><div class="dln"></div><div class="dgm-s"></div><div class="dgm"></div><div class="dgm-s"></div><div class="dln"></div></div>
+      <button class="cta" onclick="goTo(3)">Reveal the Date ›</button>
+    </div>
+  </div>
+  <div class="steps" style="margin-top:20px;"><div class="dot"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
+
+<!-- ══ S3: SCRATCH ══ -->
+<div class="screen" id="s3">
+  <div class="card">
+    <div class="cbody">
+      <div class="divrow"><div class="dln"></div><div class="dgm"></div><div class="dln"></div></div>
+      <p class="sc-h">The Big Day</p>
+      <p class="sc-s">Scratch to Unveil</p>
+      <div class="sc-wrap" id="sw">
+        <div class="datebox" id="drb">
+          <span class="d-main">Sunday, 3rd May 2026</span>
+          <span class="d-time">4:30 PM onwards</span>
+          <p class="d-venue">Vrindavan Vatika, Shri Ahir Samaj<br>Borivali West, Mumbai</p>
+        </div>
+        <canvas id="sc"></canvas>
+      </div>
+      <p class="sc-prog" id="sp">Scratch anywhere above</p>
+    </div>
+  </div>
+  <div class="steps" style="margin-top:20px;"><div class="dot"></div><div class="dot"></div><div class="dot on"></div><div class="dot"></div></div>
+</div>
+
+<!-- ══ S4: FULL INVITE ══ -->
+<div class="screen" id="s4">
+  <div class="card">
+    <svg class="orn tl" viewBox="0 0 74 74" fill="none"><path d="M4 70 Q14 38 50 4" stroke="#c9a84c" stroke-width="1.1" fill="none" opacity=".52"/><path d="M4 70 Q30 52 68 36" stroke="#c9a84c" stroke-width=".7" fill="none" opacity=".32"/><circle cx="48" cy="8" r="5.5" fill="none" stroke="#c9a84c" stroke-width=".9" opacity=".62"/><circle cx="48" cy="8" r="2.2" fill="#c9a84c" opacity=".62"/><path d="M48 2 L51 6 L48 5 L45 6Z" fill="#c9a84c" opacity=".52"/><path d="M54 12 L50 11 L51 8Z" fill="#c9a84c" opacity=".42"/><path d="M42 12 L46 11 L45 8Z" fill="#c9a84c" opacity=".42"/><circle cx="64" cy="38" r="4.5" fill="none" stroke="#c9a84c" stroke-width=".9" opacity=".52"/><circle cx="64" cy="38" r="1.8" fill="#c9a84c" opacity=".52"/><circle cx="22" cy="29" r="1.6" fill="#c9a84c" opacity=".32"/><path d="M18 46 Q23 41 30 44" stroke="#c9a84c" stroke-width=".8" fill="none" opacity=".3"/></svg>
+    <svg class="orn tr" viewBox="0 0 74 74" fill="none"><path d="M4 70 Q14 38 50 4" stroke="#c9a84c" stroke-width="1.1" fill="none" opacity=".52"/><path d="M4 70 Q30 52 68 36" stroke="#c9a84c" stroke-width=".7" fill="none" opacity=".32"/><circle cx="48" cy="8" r="5.5" fill="none" stroke="#c9a84c" stroke-width=".9" opacity=".62"/><circle cx="48" cy="8" r="2.2" fill="#c9a84c" opacity=".62"/><circle cx="64" cy="38" r="4.5" fill="none" stroke="#c9a84c" stroke-width=".9" opacity=".52"/><circle cx="64" cy="38" r="1.8" fill="#c9a84c" opacity=".52"/></svg>
+    <svg class="orn bl" viewBox="0 0 64 64" fill="none"><path d="M4 60 Q12 33 42 4" stroke="#c9a84c" stroke-width="1" fill="none" opacity=".42"/><circle cx="40" cy="8" r="4.5" fill="none" stroke="#c9a84c" stroke-width=".8" opacity=".52"/><circle cx="40" cy="8" r="1.8" fill="#c9a84c" opacity=".52"/></svg>
+    <svg class="orn br" viewBox="0 0 64 64" fill="none"><path d="M4 60 Q12 33 42 4" stroke="#c9a84c" stroke-width="1" fill="none" opacity=".42"/><circle cx="40" cy="8" r="4.5" fill="none" stroke="#c9a84c" stroke-width=".8" opacity=".52"/><circle cx="40" cy="8" r="1.8" fill="#c9a84c" opacity=".52"/></svg>
+    <div class="fb">
+      <div class="divrow" style="margin-bottom:10px;"><div class="dln"></div><div class="dgm-s"></div><div class="dgm"></div><div class="dgm-s"></div><div class="dln"></div></div>
+      <p class="lbl" style="margin-bottom:8px;">The Rathod &amp; Surve Families</p>
+      <div class="fn">
+        <span class="n-bride">Sheetal</span>
+        <span class="n-weds">weds</span>
+        <span class="n-groom">Bharat</span>
+      </div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(12px,3vw,14px);font-style:italic;color:var(--soft);margin:6px 0 12px;">joyfully request the pleasure of your company</p>
+      <div class="ev-box">
+        <p class="ev-tag">Wedding Ceremony</p>
+        <p class="ev-date">Sunday, 3rd May 2026</p>
+        <p class="ev-time">4:30 PM onwards</p>
+      </div>
+      <p class="v-name">Vrindavan Vatika</p>
+      <p class="v-hall">Shri Ahir Samaj</p>
+      <p class="v-addr">New Link Rd, opp. Yogi Tower, Eksar Village<br>Yogi Nagar, Borivali West, Mumbai 400091</p>
+      <div class="cd-row">
+        <div class="cd-u"><span class="cd-n" id="D">--</span><span class="cd-l">Days</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-u"><span class="cd-n" id="H">--</span><span class="cd-l">Hrs</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-u"><span class="cd-n" id="M">--</span><span class="cd-l">Min</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-u"><span class="cd-n" id="S">--</span><span class="cd-l">Sec</span></div>
+      </div>
+
+      <!-- Bless button -->
+      <div class="bless-wrap">
+        <button class="bless-btn" id="blessBtn" onclick="startPetals()">
+          <span>🌹</span> Click Here to Bless Us <span>🌹</span>
+        </button>
+      </div>
+
+      <div class="rsvp-bar">
+        <p class="rsvp-tag">Kindly RSVP — Bharat Surve</p>
+        <p class="rsvp-num">+91 88984 12831</p>
+      </div>
+    </div>
+  </div>
+  <div class="steps" style="margin-top:20px;"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot on"></div></div>
+</div>
+
+</div><!-- /stage -->
+
+<script>
+/* ── stars ── */
+(function(){
+  const s=document.getElementById('stars');
+  for(let i=0;i<70;i++){
+    const e=document.createElement('div');e.className='star';
+    const sz=Math.random()*2.6+.4;
+    e.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;--delay:-${Math.random()*5}s;`;
+    s.appendChild(e);
+  }
+})();
+
+/* ── navigation ── */
+function goTo(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  if(n===3)initScratch();
+  if(n===4)initCountdown();
+}
+
+/* ── envelope ── */
+function tapEnvelope(){
+  const scene=document.getElementById('envScene');
+  if(scene.dataset.done)return;scene.dataset.done='1';
+  scene.style.cursor='default';
+  document.getElementById('wax').classList.add('break');
+  spawnGold(document.getElementById('wax'));
+  setTimeout(()=>document.getElementById('flap').classList.add('opened'),350);
+  setTimeout(()=>goTo(2),1250);
+}
+
+/* ── gold confetti ── */
+function spawnGold(el){
+  const stage=document.getElementById('stage');
+  const er=el.getBoundingClientRect(),sr=stage.getBoundingClientRect();
+  const cx=er.left-sr.left+er.width/2,cy=er.top-sr.top+er.height/2;
+  const cols=['#c9a84c','#e8d5a0','#f5e8a0','#fff8cc','#a07028','#ffd700'];
+  for(let i=0;i<32;i++){
+    const p=document.createElement('div');p.className='ptcl';
+    const a=Math.random()*360,d=60+Math.random()*120,r=a*Math.PI/180,sz=3+Math.random()*9;
+    p.style.cssText=`width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};left:${cx}px;top:${cy}px;--tx:${Math.cos(r)*d}px;--ty:${Math.sin(r)*d}px;`;
+    stage.appendChild(p);setTimeout(()=>p.remove(),1100);
+  }
+}
+
+/* ── scratch ── */
+let scInited=false;
+function initScratch(){
+  if(scInited)return;scInited=true;
+  const sw=document.getElementById('sw'),drb=document.getElementById('drb'),canvas=document.getElementById('sc');
+  requestAnimationFrame(()=>{
+    const W=sw.offsetWidth||290,H=drb.offsetHeight||130;
+    sw.style.height=H+'px';
+    canvas.width=W;canvas.height=H;canvas.style.width=W+'px';canvas.style.height=H+'px';
+    const ctx=canvas.getContext('2d');
+    const g=ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,'#08112a');g.addColorStop(.5,'#172540');g.addColorStop(1,'#08112a');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(201,168,76,.11)';
+    for(let i=0;i<120;i++){ctx.beginPath();ctx.arc(Math.random()*W,Math.random()*H,Math.random()*3.5+.4,0,Math.PI*2);ctx.fill();}
+    ctx.strokeStyle='rgba(201,168,76,.07)';ctx.lineWidth=1;
+    for(let i=0;i<10;i++){ctx.beginPath();ctx.moveTo(Math.random()*W,0);ctx.lineTo(Math.random()*W,H);ctx.stroke();}
+    ctx.fillStyle='#c9a84c';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font='600 '+Math.max(11,W*.037)+'px Cinzel,serif';
+    ctx.fillText('SCRATCH TO REVEAL THE DATE',W/2,H/2-10);
+    ctx.font='400 '+Math.max(10,W*.031)+'px Cormorant Garamond,serif';
+    ctx.fillStyle='rgba(201,168,76,.48)';
+    ctx.fillText('Use finger or mouse',W/2,H/2+13);
+    ctx.globalCompositeOperation='destination-out';
+    let painting=false,scratched=0,done=false;
+    const rad=Math.max(20,W*.078);
+    function scratch(x,y){
+      ctx.beginPath();ctx.arc(x,y,rad,0,Math.PI*2);ctx.fill();
+      scratched+=Math.PI*rad*rad;
+      const pct=Math.min(100,Math.round(scratched/(W*H)*100));
+      const sp=document.getElementById('sp');
+      if(!done)sp.textContent='Keep scratching... '+pct+'%';
+      if(!done&&pct>55){done=true;sp.textContent='';
+        setTimeout(()=>{canvas.style.transition='opacity .8s';canvas.style.opacity='0';setTimeout(()=>goTo(4),920);},350);}
+    }
+    function xy(e){const r=canvas.getBoundingClientRect();if(e.touches)return{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top};return{x:e.clientX-r.left,y:e.clientY-r.top};}
+    canvas.addEventListener('mousedown',e=>{painting=true;const p=xy(e);scratch(p.x,p.y);});
+    canvas.addEventListener('mousemove',e=>{if(!painting)return;const p=xy(e);scratch(p.x,p.y);});
+    canvas.addEventListener('mouseup',()=>painting=false);canvas.addEventListener('mouseleave',()=>painting=false);
+    canvas.addEventListener('touchstart',e=>{e.preventDefault();painting=true;const p=xy(e);scratch(p.x,p.y);},{passive:false});
+    canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!painting)return;const p=xy(e);scratch(p.x,p.y);},{passive:false});
+    canvas.addEventListener('touchend',()=>painting=false);
+  });
+}
+
+/* ── countdown ── */
+function initCountdown(){
+  function tick(){
+    const diff=new Date('2026-05-03T16:30:00+05:30')-new Date();
+    if(diff<=0){['D','H','M','S'].forEach(id=>document.getElementById(id).textContent='00');return;}
+    document.getElementById('D').textContent=String(Math.floor(diff/86400000)).padStart(2,'0');
+    document.getElementById('H').textContent=String(Math.floor(diff%86400000/3600000)).padStart(2,'0');
+    document.getElementById('M').textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+    document.getElementById('S').textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');
+  }
+  tick();setInterval(tick,1000);
+}
+
+/* ════════════════════════════
+   ROSE PETALS — keep showering
+════════════════════════════ */
+const PETALS = ['🌸','🌺','🌹','🪷','💮','🏵️'];
+let petalInterval = null;
+let petalActive = false;
+
+function spawnPetal(){
+  const p = document.createElement('div');
+  p.className = 'petal';
+  const sz = 16 + Math.random() * 22;
+  const dur = 3.5 + Math.random() * 4;
+  const delay = Math.random() * .8;
+  const dx = (Math.random() - .5) * 180;
+  const r0 = Math.random() * 360;
+  const r1 = r0 + (Math.random() - .5) * 540;
+  p.textContent = PETALS[Math.floor(Math.random()*PETALS.length)];
+  p.style.cssText = `left:${Math.random()*100}vw;top:-40px;--sz:${sz}px;--dur:${dur}s;--delay:${delay}s;--dx:${dx}px;--r0:${r0}deg;--r1:${r1}deg;`;
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),(dur+delay+.5)*1000);
+}
+
+function startPetals(){
+  if(petalActive) return; // already going
+  petalActive = true;
+  const btn = document.getElementById('blessBtn');
+  btn.innerHTML = '<span>🌸</span> Blessings Showering! <span>🌸</span>';
+  btn.style.background = 'linear-gradient(135deg,#e8a0b8,#f5d0e0,#e8a0b8)';
+  btn.style.animation = 'none';
+
+  // burst first wave immediately
+  for(let i=0;i<18;i++) setTimeout(spawnPetal, i*80);
+
+  // then keep raining continuously
+  petalInterval = setInterval(()=>{
+    for(let i=0;i<4;i++) setTimeout(spawnPetal, i*160);
+  }, 700);
+}
+</script>
